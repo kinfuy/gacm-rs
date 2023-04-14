@@ -1,0 +1,11 @@
+[package]
+name = "gacm"
+version = "0.0.1"
+license = "MIT"
+edition = "2021"
+description = "Git Account Management Tools & NPM Registry Manager"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+structopt = "0.3.26"
