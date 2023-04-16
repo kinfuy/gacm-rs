@@ -5,7 +5,7 @@ use std::error::Error;
 use std::fs;
 
 use unicode_segmentation::UnicodeSegmentation;
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
     pub name: String,
     pub email: String,

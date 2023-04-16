@@ -14,31 +14,53 @@ pub enum Action {
 #[derive(Parser, Debug, Clone)]
 pub struct LsArgs {}
 
-#[derive(Parser, Debug, Clone)]
+#[derive(Debug, Parser, Clone)]
 pub struct UseArgs {
     name: String,
     #[clap(short, long)]
-    pub package: Option<String>,
+    pub local: bool,
+    #[clap(short, long)]
+    pub global: bool,
+    #[clap(short, long)]
+    pub system: bool,
 }
 
-pub fn use_account(args: UseArgs) {
-    println!("{:?}", args)
-}
-
-pub fn ls_account() {
+pub fn get_users() -> Vec<User> {
     let mut _config = GacmConfig::new();
     let config = _config.load().unwrap();
     let _account = config.get_use_config();
-    let max_len = User::max_size(_account) + 8;
-    let user_output = shell::run("git", vec!["config", "user.name"]);
-    let email_output = shell::run("git", vec!["config", "user.email"]);
-    let current_email = str::from_utf8(&email_output.stdout)
-        .unwrap()
-        .replace("\n", "");
-    let current_user = str::from_utf8(&user_output.stdout)
-        .unwrap()
-        .replace("\n", "");
-    for user in _account.iter() {
+    _account.to_vec()
+}
+
+pub fn use_account(args: UseArgs) {
+    let env = if args.system {
+        "system"
+    } else if args.global {
+        "global"
+    } else {
+        "local"
+    };
+    let _account: Vec<User> = get_users();
+    let current = _account.iter().find(|user| user.alias == args.name);
+    if let Some(cur) = current {
+        shell::run("git", vec!["config", "--local", "user.name", &cur.name]);
+        shell::run("git", vec!["config", "--local", "user.email", &cur.email]);
+        println!("\n");
+        logger::success(&format!(
+            "git user changed [{}]:{}({})",
+            env, cur.alias, cur.name
+        ))
+    }
+}
+
+pub fn ls_account() {
+    let account: Vec<User> = get_users();
+    let max_len = User::max_size(&account) + 8;
+    let current_user = shell::run_str("git", vec!["config", "user.name"]);
+    let current_email = shell::run_str("git", vec!["config", "user.email"]);
+
+    println!("\n");
+    for user in account.iter() {
         let is_current = if user.name == current_user && user.email == current_email {
             true
         } else {
