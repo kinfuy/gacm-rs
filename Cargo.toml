@@ -1,11 +1,24 @@
 [package]
-name = "gacm"
-version = "0.0.1"
+name = "gacm-rs"
+version = "0.0.2"
 license = "MIT"
 edition = "2021"
 description = "Git Account Management Tools & NPM Registry Manager"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[[bin]]
+name="gacm"
+path = "src/bin/gacm.rs"
+
+[[bin]]
+name="gnrm"
+path = "src/bin/gnrm.rs"
+
 [dependencies]
 clap = { version = "4.2.2", features = ["derive"] }
+colorized = "1.0.0"
+dirs = "5.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+unicode-segmentation = "1.10.1"
