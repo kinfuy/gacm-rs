@@ -8,10 +8,11 @@ struct Args {
     action: Action,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args = Args::parse();
     match args.action {
         Action::Use(args) => gnrm::use_registry(args),
-        Action::Ls(_) => gnrm::ls_registry(),
+        Action::Ls(_) => gnrm::ls_registry().await,
     }
 }

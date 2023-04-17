@@ -6,6 +6,8 @@ use std::fs;
 
 use unicode_segmentation::UnicodeSegmentation;
 
+use crate::actions::gnrm::RegistryManager;
+
 trait CharSize {
     fn len(str: &str) -> usize {
         let graphemes = UnicodeSegmentation::graphemes(str, true).collect::<Vec<&str>>();
@@ -62,20 +64,29 @@ pub struct Registry {
 impl CharSize for Registry {}
 
 impl Registry {
-    pub fn format(&self, len: usize, is_current: bool) -> String {
-        let start_len = Registry::len(&self.alias) + Registry::len(&self.name);
+    pub fn format(&self, len: usize, manager: &RegistryManager) -> String {
+        let is_some = if &self.alias == &self.name {
+            true
+        } else {
+            false
+        };
+        let sart_text = if is_some {
+            self.alias.to_owned()
+        } else {
+            format!("{}({})", &self.alias, &self.name)
+        };
+        let start_len = Registry::len(&sart_text);
         let end_len = Registry::len(&self.registry);
         let len = len - start_len - end_len;
-        let current = if is_current {
-            colorized::colorize_this("■", Colors::GreenFg)
-        } else {
-            String::from(" ")
-        };
+        let mut current = manager.get(&self.registry);
+        let real_len = Registry::len(&current);
+        if real_len / 11 < 4 {
+            current.push_str(&" ".repeat(5 - real_len / 11))
+        }
         format!(
-            "  {} {}({}){}{}",
+            "  {} {}{}{}",
             current,
-            self.alias,
-            colorized::colorize_this(&self.name, Colors::WhiteFg),
+            sart_text,
             String::from("-").repeat(len),
             self.registry
         )
