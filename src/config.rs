@@ -5,6 +5,14 @@ use std::error::Error;
 use std::fs;
 
 use unicode_segmentation::UnicodeSegmentation;
+
+trait CharSize {
+    fn len(str: &str) -> usize {
+        let graphemes = UnicodeSegmentation::graphemes(str, true).collect::<Vec<&str>>();
+        graphemes.len()
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
     pub name: String,
@@ -30,10 +38,7 @@ impl User {
             self.email
         )
     }
-    pub fn len(str: &str) -> usize {
-        let graphemes = UnicodeSegmentation::graphemes(str, true).collect::<Vec<&str>>();
-        graphemes.len()
-    }
+
     pub fn max_size(users: &Vec<User>) -> usize {
         let mut max = 0;
         for itme in users.iter() {
@@ -44,12 +49,48 @@ impl User {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl CharSize for User {}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Registry {
-    name: String,
-    alias: String,
-    home: String,
-    registry: String,
+    pub name: String,
+    pub alias: String,
+    pub home: String,
+    pub registry: String,
+}
+
+impl CharSize for Registry {}
+
+impl Registry {
+    pub fn format(&self, len: usize, is_current: bool) -> String {
+        let start_len = Registry::len(&self.alias) + Registry::len(&self.name);
+        let end_len = Registry::len(&self.registry);
+        let len = len - start_len - end_len;
+        let current = if is_current {
+            colorized::colorize_this("■", Colors::GreenFg)
+        } else {
+            String::from(" ")
+        };
+        format!(
+            "  {} {}({}){}{}",
+            current,
+            self.alias,
+            colorized::colorize_this(&self.name, Colors::WhiteFg),
+            String::from("-").repeat(len),
+            self.registry
+        )
+    }
+
+    pub fn max_size(registry: &Vec<Registry>) -> usize {
+        let mut max = 0;
+        for itme in registry.iter() {
+            let length = Registry::len(&itme.name)
+                + Registry::len(&itme.alias)
+                + Registry::len(&itme.registry);
+            max = if max < length { length } else { max }
+        }
+        max
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -87,5 +128,8 @@ impl GacmConfig {
 
     pub fn get_use_config(&self) -> &Vec<User> {
         &self.users
+    }
+    pub fn get_registry_config(&self) -> &Vec<Registry> {
+        &self.registry
     }
 }
