@@ -78,14 +78,26 @@ impl Registry {
         let start_len = Registry::len(&sart_text);
         let end_len = Registry::len(&self.registry);
         let len = len - start_len - end_len;
-        let mut current = manager.get(&self.registry);
-        let real_len = Registry::len(&current);
-        if real_len / 11 < 4 {
-            current.push_str(&" ".repeat(5 - real_len / 11))
+        let current = manager.get(&self.registry);
+
+        let mut cur_display = current.join(" ");
+        let real_len = Registry::len(&cur_display)
+            - if current.len() > 0 {
+                current.len() - 1
+            } else {
+                0
+            };
+        let magic = if cur_display.is_empty() {
+            4
+        } else {
+            5 - real_len / 10
+        };
+        if real_len / 10 < magic {
+            cur_display.push_str(&" ".repeat(magic - real_len / 10))
         }
         format!(
-            "  {} {}{}{}",
-            current,
+            " {}{}{}{}",
+            cur_display,
             sart_text,
             String::from("-").repeat(len),
             self.registry

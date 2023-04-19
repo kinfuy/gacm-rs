@@ -53,15 +53,14 @@ impl RegistryManager {
     pub fn new(list: Vec<RegistryItem>) -> RegistryManager {
         RegistryManager { list }
     }
-    pub fn get(&self, registry: &str) -> String {
-        let mut display = String::new();
+    pub fn get(&self, registry: &str) -> Vec<String> {
+        let mut display = Vec::new();
         for item in self.list.iter() {
             if !item.registry.is_empty() {
                 let current_url = Url::parse(&item.registry).unwrap();
                 let match_registry = Url::parse(&registry).unwrap();
                 if current_url.as_str() == match_registry.as_str() {
-                    display.push_str(" ");
-                    display.push_str(&format!("{}", &item.tag))
+                    display.push(format!("{}", &item.tag));
                 }
             }
         }
