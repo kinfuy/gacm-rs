@@ -270,7 +270,7 @@ dependencies = [
 
 [[package]]
 name = "gacm-rs"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "clap",
  "colorized",

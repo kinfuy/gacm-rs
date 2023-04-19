@@ -1,6 +1,6 @@
 [package]
 name = "gacm-rs"
-version = "0.0.2"
+version = "0.0.3"
 license = "MIT"
 edition = "2021"
 description = "Git Account Management Tools & NPM Registry Manager"
