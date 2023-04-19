@@ -64,7 +64,7 @@ pub struct Registry {
 impl CharSize for Registry {}
 
 impl Registry {
-    pub fn format(&self, len: usize, manager: &RegistryManager) -> String {
+    pub fn format(&self, len: usize, manager: &RegistryManager, list_max_len: usize) -> String {
         let is_some = if &self.alias == &self.name {
             true
         } else {
@@ -81,22 +81,19 @@ impl Registry {
         let current = manager.get(&self.registry);
 
         let mut cur_display = current.join(" ");
-        let real_len = Registry::len(&cur_display)
-            - if current.len() > 0 {
-                current.len() - 1
-            } else {
-                0
-            };
+        let real_len = Registry::len(&current.join(""));
+
         let magic = if cur_display.is_empty() {
-            4
+            list_max_len * 2
         } else {
-            5 - real_len / 10
+            list_max_len * 2 - (real_len / 10) + 1
         };
+
         if real_len / 10 < magic {
             cur_display.push_str(&" ".repeat(magic - real_len / 10))
         }
         format!(
-            " {}{}{}{}",
+            "{}{}{}{}",
             cur_display,
             sart_text,
             String::from("-").repeat(len),

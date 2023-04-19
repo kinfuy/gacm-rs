@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use colorized::Colors;
 use futures::join;
 use url::Url;
@@ -53,6 +55,17 @@ impl RegistryManager {
     pub fn new(list: Vec<RegistryItem>) -> RegistryManager {
         RegistryManager { list }
     }
+
+    pub fn max_same_len(&self) -> usize {
+        let len = 4;
+        let mut map = HashSet::new();
+        for item in self.list.iter() {
+            if !item.registry.is_empty() {
+                map.insert(Url::parse(&item.registry).unwrap());
+            }
+        }
+        len - map.len()
+    }
     pub fn get(&self, registry: &str) -> Vec<String> {
         let mut display = Vec::new();
         for item in self.list.iter() {
@@ -99,6 +112,7 @@ pub async fn ls_registry() {
     };
     let pkg_mangager = RegistryManager::new(vec![npm, yarn, pnpm, cnpm]);
 
+    let max_list_size = RegistryManager::max_same_len(&pkg_mangager);
     println!("\n");
     let mut tips = String::from("current: ");
     for item in pkg_mangager.list.iter() {
@@ -109,7 +123,7 @@ pub async fn ls_registry() {
     println!("{}", tips);
     println!("\n");
     for registry in registry.iter() {
-        let ouput = registry.format(max_len, &pkg_mangager);
+        let ouput = registry.format(max_len, &pkg_mangager, max_list_size);
         logger::info(&ouput)
     }
 }
